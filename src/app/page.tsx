@@ -301,7 +301,10 @@ export default function Home() {
 
           {/* Mobile step controls overlay (shown during active traversal) */}
           {activeTraversal && (
-            <div className="sm:hidden absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-3 px-4 py-3 rounded-2xl border border-cyan-500/25 bg-slate-950/90 backdrop-blur">
+            <div
+              className="sm:hidden absolute left-1/2 -translate-x-1/2 z-10 flex items-center gap-3 px-4 py-3 rounded-2xl border border-cyan-500/25 bg-slate-950/90 backdrop-blur"
+              style={{ bottom: 'max(16px, env(safe-area-inset-bottom, 16px) + 8px)' }}
+            >
               <button
                 onClick={() => stepTraversal(-1)}
                 disabled={!activeTraversal.canGoPrev}
