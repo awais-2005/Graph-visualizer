@@ -69,7 +69,7 @@ export default function GraphCanvas({
   );
 
   return (
-    <div ref={containerRef} className="w-full h-full">
+    <div ref={containerRef} className="w-full h-[calc(100svh-100px)]">
       <GraphScene
         key={sceneKey}
         data={data}

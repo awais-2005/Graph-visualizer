@@ -126,7 +126,7 @@ export default function Home() {
 
   return (
     <div
-      className="min-h-screen bg-slate-950 text-white flex flex-col"
+      className="min-h-[calc(100svh)] bg-slate-950 text-white flex flex-col"
       style={{ fontFamily: 'var(--font-space-mono), monospace' }}
     >
       {/* ── Header ─────────────────────────────────────────────────────────── */}
@@ -265,88 +265,88 @@ export default function Home() {
         {/* flex-col: controls bar sits BELOW canvas in normal flow — never clipped by browser chrome */}
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <div className="flex-1 relative overflow-hidden">
-          {/* Dot grid */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              backgroundImage: 'radial-gradient(circle, #1e293b 1px, transparent 1px)',
-              backgroundSize: '32px 32px',
-            }}
-          />
-          {/* Vignette */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: 'radial-gradient(ellipse at center, transparent 40%, #020617 100%)',
-            }}
-          />
+            {/* Dot grid */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                backgroundImage: 'radial-gradient(circle, #1e293b 1px, transparent 1px)',
+                backgroundSize: '32px 32px',
+              }}
+            />
+            {/* Vignette */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse at center, transparent 40%, #020617 100%)',
+              }}
+            />
 
-          {/* Traversal mode banner */}
-          {pendingTraversalMode && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-full border border-amber-400/30 bg-slate-950/85 backdrop-blur max-w-[90vw] text-center">
-              <p className="text-xs uppercase tracking-widest text-amber-300 font-mono whitespace-nowrap">
-                Tap a source node for {pendingTraversalMode.toUpperCase()}
-              </p>
-            </div>
-          )}
-
-          {/* Active traversal banner */}
-          {activeTraversal && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-full border border-cyan-400/25 bg-slate-950/85 backdrop-blur max-w-[90vw]">
-              <p className="text-xs uppercase tracking-widest text-cyan-200 font-mono text-center">
-                <span className="hidden sm:inline">{activeTraversal.mode.toUpperCase()} from node {activeTraversal.sourceNode} | visiting </span>
-                <span className="sm:hidden">Visiting </span>
-                node {activeTraversal.currentNode}
-              </p>
-            </div>
-          )}
-
-
-          {isEmpty ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-6">
-              <div
-                className="w-20 h-20 rounded-2xl border border-slate-700/50 flex items-center justify-center mb-2"
-                style={{ background: 'rgba(109,40,217,0.08)' }}
-              >
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" opacity="0.5">
-                  <circle cx="8" cy="8" r="5" stroke="#a78bfa" strokeWidth="2" />
-                  <circle cx="32" cy="8" r="5" stroke="#a78bfa" strokeWidth="2" />
-                  <circle cx="8" cy="32" r="5" stroke="#a78bfa" strokeWidth="2" />
-                  <circle cx="32" cy="32" r="5" stroke="#a78bfa" strokeWidth="2" />
-                  <circle cx="20" cy="20" r="5" stroke="#a78bfa" strokeWidth="2" />
-                  <line x1="8" y1="8" x2="20" y2="20" stroke="#7c3aed" strokeWidth="1.5" />
-                  <line x1="32" y1="8" x2="20" y2="20" stroke="#7c3aed" strokeWidth="1.5" />
-                  <line x1="8" y1="32" x2="20" y2="20" stroke="#7c3aed" strokeWidth="1.5" />
-                  <line x1="32" y1="32" x2="20" y2="20" stroke="#7c3aed" strokeWidth="1.5" />
-                </svg>
+            {/* Traversal mode banner */}
+            {pendingTraversalMode && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-full border border-amber-400/30 bg-slate-950/85 backdrop-blur max-w-[90vw] text-center">
+                <p className="text-xs uppercase tracking-widest text-amber-300 font-mono whitespace-nowrap">
+                  Tap a source node for {pendingTraversalMode.toUpperCase()}
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-slate-400 tracking-wide">No graph yet</h3>
-              <p className="text-sm text-slate-600 max-w-xs font-mono">
-                Open Controls, paste your adjacency list, and tap Visualize Graph
-              </p>
-              <button
-                onClick={() => {
-                  setInput(DEFAULT_INPUT);
-                  visualizeGraph(DEFAULT_INPUT);
-                }}
-                id="load-example-btn"
-                className="mt-2 px-4 py-2 rounded-lg text-xs font-mono text-violet-400 border border-violet-500/30 hover:border-violet-500/60 hover:bg-violet-500/10 transition-all active:scale-95"
-              >
-                Load example -&gt;
-              </button>
-            </div>
-          ) : (
-            <div className="absolute inset-0">
-              <GraphCanvas
-                data={graphData}
-                layoutToken={layoutVersion}
-                onSelectNode={pendingTraversalMode ? handleNodeSelect : undefined}
-                visitedNodeIds={visitedNodeIds}
-                activeNodeId={currentNodeId}
-                sourceNodeId={traversalRun?.sourceNode ?? null}
-              />
-            </div>
-          )}
+            )}
+
+            {/* Active traversal banner */}
+            {activeTraversal && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-full border border-cyan-400/25 bg-slate-950/85 backdrop-blur max-w-[90vw]">
+                <p className="text-xs uppercase tracking-widest text-cyan-200 font-mono text-center">
+                  <span className="hidden sm:inline">{activeTraversal.mode.toUpperCase()} from node {activeTraversal.sourceNode} | visiting </span>
+                  <span className="sm:hidden">Visiting </span>
+                  node {activeTraversal.currentNode}
+                </p>
+              </div>
+            )}
+
+
+            {isEmpty ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-6">
+                <div
+                  className="w-20 h-20 rounded-2xl border border-slate-700/50 flex items-center justify-center mb-2"
+                  style={{ background: 'rgba(109,40,217,0.08)' }}
+                >
+                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" opacity="0.5">
+                    <circle cx="8" cy="8" r="5" stroke="#a78bfa" strokeWidth="2" />
+                    <circle cx="32" cy="8" r="5" stroke="#a78bfa" strokeWidth="2" />
+                    <circle cx="8" cy="32" r="5" stroke="#a78bfa" strokeWidth="2" />
+                    <circle cx="32" cy="32" r="5" stroke="#a78bfa" strokeWidth="2" />
+                    <circle cx="20" cy="20" r="5" stroke="#a78bfa" strokeWidth="2" />
+                    <line x1="8" y1="8" x2="20" y2="20" stroke="#7c3aed" strokeWidth="1.5" />
+                    <line x1="32" y1="8" x2="20" y2="20" stroke="#7c3aed" strokeWidth="1.5" />
+                    <line x1="8" y1="32" x2="20" y2="20" stroke="#7c3aed" strokeWidth="1.5" />
+                    <line x1="32" y1="32" x2="20" y2="20" stroke="#7c3aed" strokeWidth="1.5" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-slate-400 tracking-wide">No graph yet</h3>
+                <p className="text-sm text-slate-600 max-w-xs font-mono">
+                  Open Controls, paste your adjacency list, and tap Visualize Graph
+                </p>
+                <button
+                  onClick={() => {
+                    setInput(DEFAULT_INPUT);
+                    visualizeGraph(DEFAULT_INPUT);
+                  }}
+                  id="load-example-btn"
+                  className="mt-2 px-4 py-2 rounded-lg text-xs font-mono text-violet-400 border border-violet-500/30 hover:border-violet-500/60 hover:bg-violet-500/10 transition-all active:scale-95"
+                >
+                  Load example -&gt;
+                </button>
+              </div>
+            ) : (
+              <div className="absolute inset-0">
+                <GraphCanvas
+                  data={graphData}
+                  layoutToken={layoutVersion}
+                  onSelectNode={pendingTraversalMode ? handleNodeSelect : undefined}
+                  visitedNodeIds={visitedNodeIds}
+                  activeNodeId={currentNodeId}
+                  sourceNodeId={traversalRun?.sourceNode ?? null}
+                />
+              </div>
+            )}
           </div>{/* end inner canvas flex-1 */}
 
           {/* ── Mobile step controls bar ─────────────────────────────────────
