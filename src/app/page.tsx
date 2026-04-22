@@ -262,7 +262,9 @@ export default function Home() {
         )}
 
         {/* ── Graph Canvas Area ────────────────────────────────────────────── */}
-        <div className="flex-1 relative overflow-hidden min-w-0">
+        {/* flex-col: controls bar sits BELOW canvas in normal flow — never clipped by browser chrome */}
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+          <div className="flex-1 relative overflow-hidden">
           {/* Dot grid */}
           <div
             className="absolute inset-0 pointer-events-none"
@@ -299,50 +301,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* Mobile step controls overlay (shown during active traversal) */}
-          {activeTraversal && (
-            <div
-              className="sm:hidden absolute left-1/2 -translate-x-1/2 z-10 flex items-center gap-3 px-4 py-3 rounded-2xl border border-cyan-500/25 bg-slate-950/90 backdrop-blur"
-              style={{ bottom: 'max(16px, env(safe-area-inset-bottom, 16px) + 8px)' }}
-            >
-              <button
-                onClick={() => stepTraversal(-1)}
-                disabled={!activeTraversal.canGoPrev}
-                className="w-10 h-10 rounded-xl border border-slate-600/60 bg-slate-900/60 flex items-center justify-center text-slate-200 disabled:opacity-40 active:scale-95 transition-all"
-                aria-label="Previous step"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-
-              <div className="text-xs font-mono text-cyan-300 text-center min-w-[80px]">
-                <div className="text-[10px] text-cyan-400/60 uppercase tracking-widest">{activeTraversal.mode.toUpperCase()}</div>
-                <div>{activeTraversal.stepIndex + 1} / {activeTraversal.totalSteps}</div>
-              </div>
-
-              <button
-                onClick={() => stepTraversal(1)}
-                disabled={!activeTraversal.canGoNext}
-                className="w-10 h-10 rounded-xl border border-slate-600/60 bg-slate-900/60 flex items-center justify-center text-slate-200 disabled:opacity-40 active:scale-95 transition-all"
-                aria-label="Next step"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-
-              <button
-                onClick={() => { exitTraversal(); setPanelOpen(false); }}
-                className="w-10 h-10 rounded-xl border border-red-500/30 bg-red-900/20 flex items-center justify-center text-red-300 active:scale-95 transition-all"
-                aria-label="Exit traversal"
-              >
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path d="M9 3L3 9M3 3l6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                </svg>
-              </button>
-            </div>
-          )}
 
           {isEmpty ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-6">
@@ -387,6 +345,53 @@ export default function Home() {
                 activeNodeId={currentNodeId}
                 sourceNodeId={traversalRun?.sourceNode ?? null}
               />
+            </div>
+          )}
+          </div>{/* end inner canvas flex-1 */}
+
+          {/* ── Mobile step controls bar ─────────────────────────────────────
+              Normal-flow element at bottom of flex column. Canvas above
+              shrinks to fit — controls are ALWAYS visible, never behind
+              the browser nav bar or address bar on any Android device.
+          ─────────────────────────────────────────────────────────────── */}
+          {activeTraversal && (
+            <div className="sm:hidden shrink-0 flex items-center justify-center gap-3 px-4 py-3 border-t border-cyan-500/20 bg-slate-950">
+              <button
+                onClick={() => stepTraversal(-1)}
+                disabled={!activeTraversal.canGoPrev}
+                className="w-12 h-12 rounded-xl border border-slate-600/60 bg-slate-900/60 flex items-center justify-center text-slate-200 disabled:opacity-40 active:scale-95 transition-all"
+                aria-label="Previous step"
+              >
+                <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+                  <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+
+              <div className="text-xs font-mono text-cyan-300 text-center min-w-[90px]">
+                <div className="text-[10px] text-cyan-400/60 uppercase tracking-widest">{activeTraversal.mode.toUpperCase()}</div>
+                <div className="text-sm font-bold">{activeTraversal.stepIndex + 1} / {activeTraversal.totalSteps}</div>
+              </div>
+
+              <button
+                onClick={() => stepTraversal(1)}
+                disabled={!activeTraversal.canGoNext}
+                className="w-12 h-12 rounded-xl border border-slate-600/60 bg-slate-900/60 flex items-center justify-center text-slate-200 disabled:opacity-40 active:scale-95 transition-all"
+                aria-label="Next step"
+              >
+                <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+
+              <button
+                onClick={() => { exitTraversal(); setPanelOpen(false); }}
+                className="w-12 h-12 rounded-xl border border-red-500/30 bg-red-900/20 flex items-center justify-center text-red-300 active:scale-95 transition-all"
+                aria-label="Exit traversal"
+              >
+                <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                  <path d="M9 3L3 9M3 3l6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+              </button>
             </div>
           )}
         </div>
