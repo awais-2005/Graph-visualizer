@@ -27,8 +27,8 @@ interface GraphSceneProps {
   sourceNodeId: number | null;
 }
 
-const NODE_RADIUS = 18;
-const DRAG_THRESHOLD = 4;
+const NODE_RADIUS = 20;
+const DRAG_THRESHOLD = 6;
 
 export default function GraphCanvas({
   data,
@@ -97,34 +97,30 @@ function GraphScene({
   const [hoveredNode, setHoveredNode] = useState<number | null>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [posMap, setPosMap] = useState<Map<number, NodePos>>(() => new Map(initialPositions));
+  const svgRef = useRef<SVGSVGElement>(null);
   const dragMetaRef = useRef({ startX: 0, startY: 0, moved: false });
 
   const canDrag = !onSelectNode;
   const hasTraversalFocus = activeNodeId !== null || visitedNodeIds.length > 0;
   const visitedSet = useMemo(() => new Set(visitedNodeIds), [visitedNodeIds]);
 
-  const getSvgPoint = (e: React.MouseEvent<SVGSVGElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  const getSvgPoint = (clientX: number, clientY: number) => {
+    const rect = svgRef.current?.getBoundingClientRect();
+    if (!rect) return { x: clientX, y: clientY };
+    return { x: clientX - rect.left, y: clientY - rect.top };
   };
+
+  // ─── Mouse Handlers ───────────────────────────────────────────────────────
 
   const onMouseDown = (e: React.MouseEvent, nodeId: number) => {
     if (!canDrag) return;
-
     e.preventDefault();
-    const svg = (e.currentTarget as SVGElement).closest('svg');
-    if (!svg) return;
 
-    const rect = svg.getBoundingClientRect();
-    const pt = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    const pt = getSvgPoint(e.clientX, e.clientY);
     const pos = posMap.get(nodeId);
     if (!pos) return;
 
-    dragMetaRef.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      moved: false,
-    };
+    dragMetaRef.current = { startX: e.clientX, startY: e.clientY, moved: false };
     setDragging(nodeId);
     setOffset({ x: pt.x - pos.x, y: pt.y - pos.y });
   };
@@ -136,12 +132,9 @@ function GraphScene({
       e.clientX - dragMetaRef.current.startX,
       e.clientY - dragMetaRef.current.startY
     );
+    if (travel > DRAG_THRESHOLD) dragMetaRef.current.moved = true;
 
-    if (travel > DRAG_THRESHOLD) {
-      dragMetaRef.current.moved = true;
-    }
-
-    const pt = getSvgPoint(e);
+    const pt = getSvgPoint(e.clientX, e.clientY);
     setPosMap(prev => {
       const next = new Map(prev);
       next.set(dragging, {
@@ -157,21 +150,74 @@ function GraphScene({
     setDragging(null);
   }, []);
 
+  // ─── Touch Handlers ───────────────────────────────────────────────────────
+
+  const onTouchStart = (e: React.TouchEvent, nodeId: number) => {
+    if (!canDrag) return;
+    // don't prevent default here so tap still fires onClick for selection mode
+    const touch = e.touches[0];
+    const pt = getSvgPoint(touch.clientX, touch.clientY);
+    const pos = posMap.get(nodeId);
+    if (!pos) return;
+
+    dragMetaRef.current = { startX: touch.clientX, startY: touch.clientY, moved: false };
+    setDragging(nodeId);
+    setOffset({ x: pt.x - pos.x, y: pt.y - pos.y });
+  };
+
+  const onTouchMove = useCallback((e: React.TouchEvent<SVGSVGElement>) => {
+    if (!canDrag || dragging === null) return;
+    e.preventDefault(); // prevent page scroll while dragging a node
+
+    const touch = e.touches[0];
+    const travel = Math.hypot(
+      touch.clientX - dragMetaRef.current.startX,
+      touch.clientY - dragMetaRef.current.startY
+    );
+    if (travel > DRAG_THRESHOLD) dragMetaRef.current.moved = true;
+
+    const pt = getSvgPoint(touch.clientX, touch.clientY);
+    setPosMap(prev => {
+      const next = new Map(prev);
+      next.set(dragging, {
+        x: Math.max(NODE_RADIUS, Math.min(dims.w - NODE_RADIUS, pt.x - offset.x)),
+        y: Math.max(NODE_RADIUS, Math.min(dims.h - NODE_RADIUS, pt.y - offset.y)),
+      });
+      return next;
+    });
+  }, [canDrag, dims.h, dims.w, dragging, offset.x, offset.y]);
+
+  const onTouchEnd = useCallback((e: React.TouchEvent, nodeId: number) => {
+    const moved = dragMetaRef.current.moved;
+    endDrag();
+    // If the finger barely moved, treat it as a tap → node selection
+    if (!moved && onSelectNode) {
+      e.preventDefault();
+      onSelectNode(nodeId);
+    }
+    // If it was a tap in non-select drag mode, show neighbor hint
+    if (!moved && canDrag) {
+      setHoveredNode(prev => (prev === nodeId ? null : nodeId));
+    }
+  }, [canDrag, endDrag, onSelectNode]);
+
+  // ─── Highlight logic ──────────────────────────────────────────────────────
+
   const highlightedNodes = hoveredNode !== null && !hasTraversalFocus && !onSelectNode
     ? new Set([hoveredNode, ...(data.nodes.find(node => node.id === hoveredNode)?.neighbors ?? [])])
     : null;
 
   return (
     <svg
+      ref={svgRef}
       width={dims.w}
       height={dims.h}
-      className="w-full h-full"
+      className="w-full h-full touch-none"
       onMouseMove={onMouseMove}
       onMouseUp={endDrag}
-      onMouseLeave={() => {
-        endDrag();
-        setHoveredNode(null);
-      }}
+      onMouseLeave={() => { endDrag(); setHoveredNode(null); }}
+      onTouchMove={onTouchMove}
+      onTouchEnd={endDrag}
       style={{ cursor: dragging !== null ? 'grabbing' : onSelectNode ? 'pointer' : 'default' }}
     >
       <defs>
@@ -266,15 +312,19 @@ function GraphScene({
             key={node.id}
             transform={`translate(${pos.x},${pos.y})`}
             onMouseDown={e => onMouseDown(e, node.id)}
-            onClick={onSelectNode ? () => onSelectNode(node.id) : undefined}
             onMouseEnter={() => setHoveredNode(node.id)}
             onMouseLeave={() => setHoveredNode(current => (current === node.id ? null : current))}
+            onClick={onSelectNode ? () => onSelectNode(node.id) : undefined}
+            onTouchStart={e => onTouchStart(e, node.id)}
+            onTouchEnd={e => onTouchEnd(e, node.id)}
             style={{
               cursor: onSelectNode ? 'pointer' : 'grab',
               userSelect: 'none',
-              backgroundColor: 'red',
             }}
           >
+            {/* Larger invisible hit target for touch */}
+            <circle r={NODE_RADIUS + 10} fill="transparent" />
+
             {isActive && (
               <circle
                 r={NODE_RADIUS + 11}
@@ -339,7 +389,7 @@ function GraphScene({
 
             {!isActive && isHovered && !hasTraversalFocus && (
               <text
-                y={NODE_RADIUS + 14}
+                y={NODE_RADIUS + 16}
                 textAnchor="middle"
                 fontSize="9"
                 fontFamily="var(--font-jetbrains-mono), monospace"

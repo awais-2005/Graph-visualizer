@@ -2,11 +2,19 @@
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
   height: 100%;
+  /* Allow scrolling in mobile sheet panels but prevent overscroll bounce */
   overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* Safe-area padding for notched phones */
+.pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
 ::-webkit-scrollbar {
@@ -18,4 +26,10 @@ html, body {
 ::-webkit-scrollbar-thumb {
   background: #334155;
   border-radius: 2px;
+}
+
+/* Prevent text selection during node drag */
+svg {
+  user-select: none;
+  -webkit-user-select: none;
 }

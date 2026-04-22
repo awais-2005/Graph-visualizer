@@ -65,9 +65,9 @@ export default function InputPanel({
         <p className="text-xs text-slate-500 font-mono">Node {'<id>'} : {'(<neighbor>, ...)'}</p>
       </div>
 
-      <div className="flex-1 relative">
+      <div className="relative">
         <textarea
-          className="w-full h-full min-h-[220px] bg-slate-900/60 border border-slate-700/60 rounded-xl p-4 text-sm font-mono text-slate-200 placeholder-slate-600 resize-none focus:outline-none focus:border-violet-500/70 focus:ring-1 focus:ring-violet-500/30 transition-all"
+          className="w-full min-h-[140px] sm:min-h-[200px] max-h-[40dvh] sm:max-h-none bg-slate-900/60 border border-slate-700/60 rounded-xl p-4 text-sm font-mono text-slate-200 placeholder-slate-600 resize-none focus:outline-none focus:border-violet-500/70 focus:ring-1 focus:ring-violet-500/30 transition-all"
           placeholder={PLACEHOLDER}
           value={value}
           onChange={e => onChange(e.target.value)}
@@ -154,7 +154,7 @@ export default function InputPanel({
       </div>
 
       {(nodeCount > 0 || edgeCount > 0) && (
-        <div className="grid grid-cols-2 gap-3 mb-5">
+        <div className="grid grid-cols-2 gap-3">
           <Stat label="Nodes" value={nodeCount} />
           <Stat label="Edges" value={edgeCount} />
         </div>
@@ -177,7 +177,7 @@ function ActionButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="rounded-xl px-3 py-2.5 text-xs font-mono font-bold tracking-widest uppercase border transition-all disabled:cursor-not-allowed disabled:opacity-45"
+      className="rounded-xl px-3 py-3 text-xs font-mono font-bold tracking-widest uppercase border transition-all disabled:cursor-not-allowed disabled:opacity-45 active:scale-95"
       style={{
         background: 'linear-gradient(135deg, rgba(6,182,212,0.18), rgba(34,197,94,0.1))',
         borderColor: 'rgba(34,211,238,0.22)',
@@ -203,7 +203,7 @@ function GhostButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="rounded-xl px-3 py-2.5 text-xs font-mono font-bold tracking-widest uppercase border border-slate-600/60 text-slate-200 bg-slate-950/40 hover:bg-slate-900/70 transition-all disabled:cursor-not-allowed disabled:opacity-45"
+      className="rounded-xl px-3 py-3 text-xs font-mono font-bold tracking-widest uppercase border border-slate-600/60 text-slate-200 bg-slate-950/40 hover:bg-slate-900/70 transition-all disabled:cursor-not-allowed disabled:opacity-45 active:scale-95"
     >
       {children}
     </button>
